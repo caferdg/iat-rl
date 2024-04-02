@@ -801,7 +801,7 @@ class GridWorld(MDP):
                 if (x, y) not in self.blocked_states and (x, y) not in self.goal_states:
                     if policy.select_action((x, y)) != self.TERMINATE:
                         action = arrow_map[policy.select_action((x, y))]
-                        fontsize = "xx-large"
+                        fontsize = 50
                     texts.append(plt.text(
                                 x,
                                 y,
@@ -817,7 +817,7 @@ class GridWorld(MDP):
                             x,
                             y,
                             f"{self.get_goal_states()[(x, y)]:+0.2f}",
-                            fontsize="x-large",
+                            fontsize="xx-large",
                             horizontalalignment="center",
                             verticalalignment="center",
                         )

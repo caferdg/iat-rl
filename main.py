@@ -9,7 +9,7 @@ if len(sys.argv) != 2:
     exit()
 
 if (sys.argv[1] == "q"):
-    QL = q_agent(GridWorld(), alpha=0.01, gamma=0.95, nbEp=10000)
+    QL = q_agent(GridWorld(), alpha=0.01, gamma=0.95, nbEp=5000)
     print ("Terminal states :" , QL.mdp.get_goal_states () )
     bestQ = QL.solve()
 
