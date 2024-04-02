@@ -2,6 +2,7 @@ import random as rd
 import sys
 from matplotlib import pyplot as plt
 from gridworld import *
+import time as tm
 
 class q_function:
     def __init__(self, Qvalues):
@@ -11,14 +12,15 @@ class q_function:
         return self.Qvalues[state][action]
 
 class q_agent:
-    mdp=None
-    state= None
-    Qvalues = None
-
     # HYPERPARAMETERS
     nbEpisodes = None
     alpha = None
     gamma = None
+    
+    mdp=None
+    state= None
+    Qvalues = None
+
 
     def __init__(self, mdp, alpha=0.01, gamma=0.99, nbEp=1000): # and here...
         self.mdp = mdp
@@ -50,10 +52,11 @@ class q_agent:
         print(" - Alpha: ", self.alpha)
         print(" - Gamma: ", self.gamma)
         print(" - Number of episodes: ", self.nbEpisodes)
+        start = tm.time()
         y=[]
         episodes = range(1, self.nbEpisodes+1)
         for k in range(1, self.nbEpisodes+1):
-            sys.stdout.write("\rEpoch : " + str(k) + "/" + str(self.nbEpisodes))
+            sys.stdout.write("\rEpisode : " + str(k) + "/" + str(self.nbEpisodes))
             sys.stdout.flush()
             epsilon = 1 - (k/self.nbEpisodes)
             self.state = self.mdp.get_initial_state()
@@ -64,6 +67,7 @@ class q_agent:
                 self.Qvalues[self.state][action] = self.Qvalues[self.state][action] + self.alpha*delta
                 self.state=nextState
             y.append(self.Qvalues[(0,0)][UP])
+        print("\nTraining time: ", tm.time()-start)
 
         self.mdp.visualise_q_function(q_function(self.Qvalues))
         plt.plot(episodes,y)

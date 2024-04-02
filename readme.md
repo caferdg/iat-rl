@@ -4,5 +4,5 @@
 - Dynamic programming
 - Q-learning
 
-Usage (no libs required) :
+Usage :
 `python3 main.py <dp/q>`

@@ -1,4 +1,6 @@
 import random as rd
+import matplotlib.pyplot as plt
+import time as tm
 
 class value_function:
     def __init__(self, values):
@@ -8,33 +10,33 @@ class value_function:
         return self.values[state]
     
 class policy:
-    def __init__(self, values, mdp):
-        self.values = values
+    def __init__(self, mdp, values, gamma):
         self.mdp = mdp
+        self.values = values
+        self.gamma = gamma
 
     def select_action(self, state):
-        action = self.mdp.get_actions(state)[0]
+        max = -1
+        a_max = self.mdp.get_actions(state)[0]
         for a in self.mdp.get_actions(state):
-            maxProba = -1000
-            candidate_state = (0,0)
-            candidate_action = a
+            r = 0
             for new_state, proba in self.mdp.get_transitions(state, a):
-                if proba > maxProba:
-                    maxProba = proba
-                    candidate_state = new_state
-                    candidate_action = a
-            if self.values[candidate_state] > self.values[state]:
-                action = candidate_action
-        return action
+                r += proba * (self.mdp.get_reward(state,a,new_state) + self.gamma*self.values[new_state])
+            if r > max:
+                max = r
+                a_max = a
+        return a_max
+
 
 
 class dp_agent():
-    mdp=None
-    values=None
-
     # HYPERPARAMETERS
     epsilon = None
     gamma = None
+
+    mdp=None
+    values=None
+
 
     def __init__(self,mdp, eps=0.001, gamma=0.99):
         self.mdp=mdp
@@ -55,7 +57,9 @@ class dp_agent():
         print("Training Dynamic Programming agent with the following hyperparameters:")
         print(" - Epsilon: ", self.epsilon)
         print(" - Gamma: ", self.gamma)
-        diff = 99
+        start = tm.time()
+        diff = self.epsilon+1
+        firstV = [self.values[(0,0)]] # value of the initial state history
         k = 0
         while diff > self.epsilon:
             k += 1
@@ -63,18 +67,23 @@ class dp_agent():
             for s in self.mdp.get_states():
                 self.update(s)
             diff = self.get_width(self.values, v_ancien)
-        print("Convergence reached in", k, "iterations")
+            firstV.append(self.values[(0,0)])
+        print("Convergence reached in", k, "iterations", "in", tm.time()-start, "seconds")
+        plt.plot(range(0, k+1), firstV)
+        plt.xlabel('Iterations')
+        plt.ylabel('Value of the initial state')
+        plt.show()
         self.mdp.visualise_value_function(value_function(self.values))
-        self.mdp.visualise_policy(policy(self.values, self.mdp))
+        self.mdp.visualise_policy(policy(self.mdp, self.values, self.gamma))
         return(self.values)
     
     def update(self,s):
         # get Max
         max = -1
-        for a in self.mdp.get_actions():
+        for a in self.mdp.get_actions(s):
             r = 0
             for new_state, proba in self.mdp.get_transitions(s, a):
-                r += proba * self.mdp.get_reward(s,a,new_state) + (self.gamma*proba*self.values[new_state])
+                r += proba * (self.mdp.get_reward(s,a,new_state) + self.gamma*self.values[new_state])
             if r > max:
                 max = r
 
