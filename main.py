@@ -10,12 +10,10 @@ if len(sys.argv) != 2:
 
 if (sys.argv[1] == "q"):
     QL = q_agent(GridWorld(), alpha=0.01, gamma=0.95, nbEp=6000)
-    start = tm.time()
     bestQ = QL.solve()
 
 elif(sys.argv[1] == "dp"):
     DP = dp_agent(GridWorld(), eps=0.0001, gamma=0.80)
-    start = tm.time()
     bestV = DP.solve()
 else:
     print("Please enter a valid argument : q or dp")
