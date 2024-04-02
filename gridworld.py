@@ -16,10 +16,10 @@ class GridWorld(MDP):
     def __init__(
         self,
         noise=0.1,
-        width=4,
-        height=3,
+        width=7,
+        height=6,
         discount_factor=0.9,
-        blocked_states=[(1, 1)],
+        blocked_states=[(1, 1), (4,3),(5,3), (3,2), (2,2)],
         action_cost=0.0,
         initial_state=(0, 0),
         goals=None,
@@ -33,7 +33,7 @@ class GridWorld(MDP):
         self.initial_state = initial_state
         if goals is None:
             self.goal_states = dict(
-                [((width - 1, height - 1), 1), ((width - 1, height - 2), -1)]
+                [((width - 1, height - 1), 1), ((width - 3, height - 5), -1)]
             )
         else:
             self.goal_states = dict(goals)
@@ -237,17 +237,19 @@ class GridWorld(MDP):
     """ Visualise a Grid World value function """
     def visualise_value_function(self, value_function, title="", grid_size=1.5, gif=False):
         if self.matplotlib_installed():
-            return self.visualise_value_function_as_image(value_function, title=title, grid_size=grid_size, gif=gif)
+            #return self.visualise_value_function_as_image(value_function, title=title, grid_size=grid_size, gif=gif)
+            return self.visualise_value_function_as_heatmap(value_function, title=title)
         else:
             print(self.value_function_to_string(value_function, title=title))
 
-    def visualise_q_function(self, qfunction, title="", grid_size=2.0, gif=False):
+    def visualise_q_function(self, qfunction, title="", grid_size=1, gif=False):
         if self.matplotlib_installed():
-            return self.visualise_q_function_as_image(qfunction, title=title, grid_size=grid_size, gif=gif)
+            #return self.visualise_q_function_as_image(qfunction, title=title, grid_size=grid_size, gif=gif)
+            return self.visualise_q_function_rendered(qfunction, title=title)
         else:
             print(self.q_function_to_string(qfunction, title=title))
 
-    def visualise_policy(self, policy, title="", grid_size=1.5, gif=False):
+    def visualise_policy(self, policy, title="", grid_size=1, gif=False):
         if self.matplotlib_installed():
             return self.visualise_policy_as_image(policy, title=title, grid_size=grid_size, gif=gif)
         else:
@@ -574,8 +576,8 @@ class GridWorld(MDP):
         texts = []
         for y in range(self.height):
             for x in range(self.width):
-                value = value_function.get_value((x, y))
                 if (x, y) not in self.blocked_states:
+                    value = value_function.get_value((x, y))
                     text = plt.text(
                         x,
                         y,
@@ -599,7 +601,7 @@ class GridWorld(MDP):
 
     def visualise_value_function_as_heatmap(self, value_function, title=""):
         values = [[0 for _ in range(self.width)] for _ in range(self.height)]
-        fig, ax = self.initialise_grid()
+        fig, ax, img = self.initialise_grid(grid_size=1)
         for y in range(self.height):
             for x in range(self.width):
                 if (x, y) in self.blocked_states:
@@ -701,6 +703,7 @@ class GridWorld(MDP):
         # provide these to scale the colours between the highest and lowest value
         reward_max = max(self.get_goal_states().values())
         reward_min = min(self.get_goal_states().values())
+        fig, ax, _ = self.initialise_grid(grid_size=1)
         # Render the grid
         for y in range(0, self.height):
             for x in range(0, self.width):
@@ -783,7 +786,7 @@ class GridWorld(MDP):
 
     """ Visualise the policy of the agent with a matplotlib visual """
 
-    def visualise_policy_as_image(self, policy, title="", grid_size=1.5, gif=False):
+    def visualise_policy_as_image(self, policy, title="", grid_size=1, gif=False):
         # Map from basic unicode to prettier arrows
         arrow_map = {self.UP:'\u2191',
                      self.DOWN:'\u2193',

@@ -14,17 +14,23 @@ class q_agent:
     mdp=None
     state= None
     Qvalues = None
-    epochs = 1000
-    alpha = 0.01
-    gamma = 0.99
 
-    def __init__(self, mdp): # and here...
+    # HYPERPARAMETERS
+    nbEpisodes = None
+    alpha = None
+    gamma = None
+
+    def __init__(self, mdp, alpha=0.01, gamma=0.99, nbEp=1000): # and here...
         self.mdp = mdp
         self.Qvalues = dict()
         for s in mdp.get_states():
             self.Qvalues[s] = dict() # Q(s, a)
             for a in mdp.get_actions(s):
-                self.Qvalues[s][a] = rd.random()
+                #self.Qvalues[s][a] = rd.random()
+                self.Qvalues[s][a] = rd.gauss(0, 0.1)
+        self.alpha = alpha
+        self.gamma = gamma
+        self.nbEpisodes = nbEp
         
 
     def greedy(self,state,eps):
@@ -40,23 +46,30 @@ class q_agent:
             return rd.choice(self.mdp.get_actions(state))
 
     def solve(self):
-        for k in range(1, self.epochs+1):
-            sys.stdout.write("\rEpoch : " + str(k) + "/" + str(self.epochs))
+        print("Training Q-Learning agent with the following hyperparameters:")
+        print(" - Alpha: ", self.alpha)
+        print(" - Gamma: ", self.gamma)
+        print(" - Number of episodes: ", self.nbEpisodes)
+        y=[]
+        episodes = range(1, self.nbEpisodes+1)
+        for k in range(1, self.nbEpisodes+1):
+            sys.stdout.write("\rEpoch : " + str(k) + "/" + str(self.nbEpisodes))
             sys.stdout.flush()
-            epsilon = 1 - (k/self.epochs)
+            epsilon = 1 - (k/self.nbEpisodes)
             self.state = self.mdp.get_initial_state()
             while not self.mdp.is_terminal(self.state):
-                if k == self.epochs:
-                    #self.mdp.visualise(self.state)
-                    pass
                 action = self.greedy(self.state, epsilon)
                 nextState, reward = self.mdp.execute(self.state, action)
                 delta = self.get_delta(reward, self.Qvalues, self.state, nextState, action)
                 self.Qvalues[self.state][action] = self.Qvalues[self.state][action] + self.alpha*delta
                 self.state=nextState
-            if k == self.epochs:
-                qf = q_function(self.Qvalues)
-                self.mdp.visualise_q_function(qf)
+            y.append(self.Qvalues[(0,0)][UP])
+
+        self.mdp.visualise_q_function(q_function(self.Qvalues))
+        plt.plot(episodes,y)
+        plt.xlabel("Episode")
+        plt.ylabel("Q((0,0), ▲)")
+        plt.show()
         return self.Qvalues
 
     def get_delta(self, reward, q_value, state, next_state, action):

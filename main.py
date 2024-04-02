@@ -2,18 +2,21 @@ from dynamic_programming import *
 from gridworld import *
 from q_learning import *
 from dynamic_programming import *
+import sys
 
-QL = q_agent(GridWorld())
-print (" states :" , QL.mdp.get_states () )
-print (" terminal states :" , QL.mdp.get_goal_states () )
-print (" actions :" , QL.mdp.get_actions () )
+if len(sys.argv) != 2:
+    print("Usage: python main.py <q or dp>")
+    exit()
 
-bestQ = QL.solve()
+if (sys.argv[1] == "q"):
+    QL = q_agent(GridWorld(), alpha=0.01, gamma=0.95, nbEp=10000)
+    print ("Terminal states :" , QL.mdp.get_goal_states () )
+    bestQ = QL.solve()
 
-# DL = dp_agent(GridWorld())
-# print (" states :" , DL.mdp.get_states () )
-# print (" terminal states :" , DL.mdp.get_goal_states () )
-# print (" actions :" , DL.mdp.get_actions () )
-
-# bestV = DL.solve()
-# print(bestV)
+elif(sys.argv[1] == "dp"):
+    DP = dp_agent(GridWorld(), eps=0.0001, gamma=0.9)
+    print ("Terminal states :" , DP.mdp.get_goal_states () )
+    bestV = DP.solve()
+else:
+    print("Please enter a valid argument : q or dp")
+    exit()
