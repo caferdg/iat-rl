@@ -15,7 +15,7 @@ class q_agent:
     state= None
     Qvalues = None
     epochs = 1000
-    alpha = 0.001
+    alpha = 0.01
     gamma = 0.99
 
     def __init__(self, mdp): # and here...
@@ -60,5 +60,5 @@ class q_agent:
         return self.Qvalues
 
     def get_delta(self, reward, q_value, state, next_state, action):
-        max = max(q_value[next_state][a] for a in self.mdp.get_actions(next_state))
-        return reward + (self.gamma*max) - q_value[state][action]
+        maxx = max(q_value[next_state][a] for a in self.mdp.get_actions(next_state))
+        return reward + (self.gamma*maxx) - q_value[state][action]
