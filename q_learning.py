@@ -61,6 +61,8 @@ class q_agent:
             epsilon = 1 - (k/self.nbEpisodes)
             self.state = self.mdp.get_initial_state()
             while not self.mdp.is_terminal(self.state):
+                # finalAlpha = 0.0001
+                # lrScheduling = (finalAlpha-self.alpha)*k/self.nbEpisodes + self.alpha
                 action = self.greedy(self.state, epsilon)
                 nextState, reward = self.mdp.execute(self.state, action)
                 delta = self.get_delta(reward, self.Qvalues, self.state, nextState, action)
